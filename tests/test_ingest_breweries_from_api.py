@@ -38,6 +38,3 @@ class TestBreweryDataPipeline(unittest.TestCase):
         mock_minio.put_object.assert_called_once()
         args, kwargs = mock_minio.put_object.call_args
         self.assertIn("breweries_page_1.json", kwargs["object_name"])
-
-if __name__ == "__main__":
-    unittest.main()

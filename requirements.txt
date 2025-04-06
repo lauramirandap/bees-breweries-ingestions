@@ -1,0 +1,6 @@
+prefect==2.14.18
+pyspark
+requests
+python-dotenv
+minio
+griffe==0.39.1

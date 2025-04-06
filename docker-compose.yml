@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   minio:
     image: minio/minio
@@ -6,14 +8,16 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
     command: server /data --console-address ":9001"
     volumes:
       - minio-data:/data
 
   spark:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: spark
     depends_on:
       - minio
@@ -24,6 +28,31 @@ services:
       - ./data:/data
     working_dir: /bees_breweries_ingestion
     command: [ "tail", "-f", "/dev/null" ]
+
+  prefect:
+    build:
+      context: .
+      dockerfile: Dockerfile.prefect
+    container_name: prefect
+    depends_on:
+      - spark
+      - minio
+      - prefect-server
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      - PYTHONPATH=/app
+    command: [ "tail", "-f", "/dev/null" ]
+
+  prefect-server:
+    image: prefecthq/prefect:2.14.18-python3.10
+    container_name: prefect-server
+    ports:
+      - "4200:4200"
+    command: prefect server start
+    environment:
+      - PREFECT_UI_ENABLED=true
 
 volumes:
   minio-data:
