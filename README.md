@@ -1,58 +1,4 @@
-# 🍺 Ingestão de Cervejarias
 
-## 📌 Visão Geral  
-Este projeto coleta dados de cervejarias a partir da API pública: [Open Brewery DB API](https://www.openbrewerydb.org/). O pipeline de ingestão é containerizado com Docker e segue uma **arquitetura medallion** (Bronze, Silver, Gold) para organizar e estruturar o processamento dos dados.
-
----
-
-## ⚙️ Orquestração  
-O **Prefect** é utilizado para orquestrar todas as tarefas de ingestão e transformação, garantindo agendamento confiável, tentativas automáticas e observabilidade do fluxo.
-
----
-
-## 🔧 Stack Tecnológico
-
-| Componente        | Ferramenta                        |
-|------------------|-----------------------------------|
-| Data Lake        | [MinIO](https://min.io/)          |
-| Processamento    | [Apache Spark](https://spark.apache.org/) |
-| Orquestração     | [Prefect](https://www.prefect.io/) |
-| Containerização  | [Docker](https://www.docker.com/) |
-| Testes           | `pytest` para testes unitários     |
-
----
-
-## 🚀 Decisões do Projeto
-
-- **Extração de Dados**: Implementada com Python e a biblioteca `requests`.
-- **Processamento de Dados**: As transformações seguem a arquitetura medallion e são realizadas com PySpark.
-- **Armazenamento**: Todos os dados ingeridos são salvos em buckets no MinIO, simulando um data lake compatível com S3.
-- **Modularização**: O código está organizado em módulos e classes reutilizáveis, facilitando testes e manutenção.
-- **Containerização**: Todo o ambiente (Spark, MinIO, API, Prefect) é orquestrado usando Docker Compose.
-
----
-
-## 🧪 Testes
-
-- Os testes unitários foram implementados com `pytest`.
-- Módulos principais, como ingestão da API e escrita dos dados, estão totalmente cobertos por testes unitários.
--
-
-
-
-
-
-
-Você disse:
-o codigo em ingles
-
-
-O ChatGPT disse:
-Claro! Aqui está o conteúdo do README.md traduzido completamente para inglês, pronto para ser usado no seu repositório:
-
-markdown
-Copiar
-Editar
 # 🍺 Breweries Ingestion
 
 ## 📌 Overview  
@@ -87,10 +33,10 @@ This project retrieves brewery data from the public API: [Open Brewery DB API](h
 
 ---
 
-## ▶️ Como Rodar o Projeto Localmente
+## ▶️ How to Run the Project Locally
 
-### 📦 Pré-requisitos  
-Antes de rodar o projeto, certifique-se de ter os seguintes itens instalados:
+### 📦 Prerequisites  
+Before running the project, make sure you have the following installed:
 
 - [Docker](https://www.docker.com/)
 - [Docker Compose](https://docs.docker.com/compose/)
