@@ -1,5 +1,5 @@
 
-# 🍺 Breweries Ingestion
+# 🍺 Brewery Data Ingestion Pipelin
 
 ## 📌 Overview  
 This project retrieves brewery data from the public API: [Open Brewery DB API](https://www.openbrewerydb.org/). The ingestion pipeline is containerized using Docker and follows a **medallion architecture** (Bronze, Silver, Gold) for structured data processing and organization.
@@ -35,11 +35,13 @@ This project retrieves brewery data from the public API: [Open Brewery DB API](h
 
 ## ▶️ How to Run the Project Locally
 
+
 ### 📦 Prerequisites  
 Before running the project, make sure you have the following installed:
 
 - [Docker](https://www.docker.com/)
 - [Docker Compose](https://docs.docker.com/compose/)
+- [Python 3.10+](https://www.python.org/) (for local development)
 
 ---
 
@@ -58,16 +60,40 @@ cd bees-breweries-ingestions
 docker-compose up --build
 ```
 
-### 3. Run the ingestion flow
+### 3. (Optional) Run the ingestion flow manually
+Use this if you just want to test the flow once, without scheduling:
 
 ```bash
-docker exec -it prefect-agent bash
-python orchestration/prefect_flow.py
+docker exec -it prefect bash
+python orchestration/prefect/flow.py
+```
+
+### 3. Schedule the ingestion flow with Prefect
+To register and schedule the flow to run automatically according to the defined schedule in brewery_deployment.py
+
+```bash
+docker exec -it prefect bash
+prefect work-pool create -t process default
+python orchestration/brewery_deployment.py
 ```
 
 ### 4. Check the data in MinIO
 
 Access the MinIO UI at http://localhost:9001, log in, and navigate to the configured bucket (e.g., bronze/) to see the saved files like breweries_page_*.json
+
+---
+
+### 🔐 Environment Variables
+
+Before running the project, create a `.env` file at the root of the repository with the following variables:
+
+- `MINIO_ENDPOINT`
+- `MINIO_ACCESS_KEY`
+- `MINIO_SECRET_KEY`
+- `PREFECT_API_URL`
+- `BREWERY_API_URL`
+
+> ⚠️ These environment variables are required for the project to connect to MinIO, Prefect, and the external Brewery API.
 
 ---
 
@@ -79,10 +105,25 @@ Access the MinIO UI at http://localhost:9001, log in, and navigate to the config
 
 ---
 
+## ✅ Monitoring and Pipeline Failure Alert
+
+This project includes an automated email alert mechanism configured with **Zapier**, which sends a notification whenever the pipeline fails.
+
+### 🔁 How it works
+
+The pipeline is executed using **Prefect**, which triggers a **Zapier webhook** in case of a failure.
+
+The Zap configured in Zapier consists of two steps:
+
+- **Catch Hook (Webhooks by Zapier)** — Receives the call from Prefect with the error details.
+- **Send Email (Gmail)** — Sends an email to the technical owner with the failure information.
+
+---
+
 ## 🔄 Future Improvements
 
 - ✅ Implement CI/CD with GitHub Actions for testing and container builds.
 - ✅ Add integration tests with Prefect and Spark pipelines.
-- ✅ Monitor task execution using Prefect Cloud or Prefect Server UI.
 - ✅ Implement data quality checks using **Great Expectations**.
 - ✅ Add documentation using tools like **MkDocs** or a `docs/` folder with usage instructions.
+- ✅ Add data versioning using Delta Lake

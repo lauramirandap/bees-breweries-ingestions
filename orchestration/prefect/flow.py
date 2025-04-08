@@ -9,7 +9,7 @@ from jobs.silver_to_gold import (
     GoldLayerAggregator
 )
 from config.spark_session import create_spark_session
-
+from orchestration.prefect.send_webhook_notification import send_webhook_notification
 
 def run_brewery_data_pipeline(bucket_name: str = "beer-data-lake", max_pages: int = 50):
     pipeline = BreweryDataPipeline(bucket_name)
@@ -31,12 +31,17 @@ def run_gold_aggregator(
     pipeline = GoldLayerAggregator(spark, input_path, output_path)
     pipeline.run_pipeline()
 
+def failure_hook(flow, flow_run, state):
+    exception = state.result(raise_on_failure=False)
+    msg = f"❌ Flow '{flow.name}' failed with error: {exception}"
+    send_webhook_notification.fn(msg)
 
-@flow(name="Brewery ETL")
+@flow(name="Brewery ETL", on_failure=[failure_hook])
 def brewery_etl_pipeline():
-    # run_brewery_data_pipeline()
+    run_brewery_data_pipeline()
     run_silver_layer_processor()
     run_gold_aggregator()
+
 
 if __name__ == "__main__":
     brewery_etl_pipeline()

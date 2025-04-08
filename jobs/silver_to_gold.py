@@ -1,5 +1,4 @@
 from pyspark.sql import SparkSession
-from config.spark_session import create_spark_session
 from pyspark.sql import functions as f
 
 
@@ -13,17 +12,19 @@ class GoldLayerAggregator:
         return self.spark.read.format("parquet").load(self.input_path)
 
     def aggregate_data(self, df):
-        return (df.groupBy("state", "city", "brewery_type")
-                .agg(f.count("*").alias("brewery_count")))
+        return (
+            df.groupBy("state", "city", "brewery_type")
+            .agg(f.count("*").alias("brewery_count"))
+        )
 
-    def write_data(self, df):
-        (df.write
-           .format("parquet")
-           .mode("overwrite")
-           .save(self.output_path))
+    def write_data(self, df): (
+        df.write
+        .format("parquet")
+       .mode("overwrite")
+       .save(self.output_path)
+    )
 
     def run_pipeline(self):
         df = self.read_data()
         df_aggregated = self.aggregate_data(df)
         self.write_data(df_aggregated)
-
